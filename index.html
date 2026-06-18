@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logged In</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <h1>Logged In</h1>
+
+    <button onclick="selectUpper()">
+    Upper
+    </button>
+
+    <button onclick="selectLower()">
+        Lower
+    </button>
+
+    <select id="exercise" onchange="renderPreviousWorkouts()"></select>
+    <input id="workoutDate" type="date" onchange="renderPreviousWorkouts()">
+    <input id="weight" placeholder="Weight">
+    <input id="reps" placeholder="Reps">
+
+    <button id="setButton" onclick="addSet()">
+        Add Set
+    </button>
+
+    <p id="previousWorkout"></p>
+    <h3>Workout History</h3>
+
+    <button onclick="toggleSortOrder()">
+        Sort
+    </button>
+    <ul id="setList"></ul>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
