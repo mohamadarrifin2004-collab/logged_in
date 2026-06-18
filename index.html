@@ -1,37 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Logged In</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Logger</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <h1>Logged In</h1>
+    <h1>Workout Logger</h1>
 
-    <button onclick="selectUpper()">
-    Upper
-    </button>
+    <div class="form-row">
+        <button onclick="selectUpper()">
+            Upper
+        </button>
 
-    <button onclick="selectLower()">
-        Lower
-    </button>
+        <button onclick="selectLower()">
+            Lower
+        </button>
 
-    <select id="exercise" onchange="renderPreviousWorkouts()"></select>
-    <input id="workoutDate" type="date" onchange="renderPreviousWorkouts()">
-    <input id="weight" placeholder="Weight">
-    <input id="reps" placeholder="Reps">
+        <select id="exercise" onchange="renderPreviousWorkouts()"></select>
 
-    <button id="setButton" onclick="addSet()">
-        Add Set
-    </button>
+        <input id="workoutDate" type="date" onchange="renderPreviousWorkouts()">
+
+        <input id="weight" placeholder="Weight">
+
+        <input id="reps" placeholder="Reps">
+
+        <button id="setButton" onclick="addSet()">
+            Add Set
+        </button>
+    </div>
 
     <p id="previousWorkout"></p>
+
     <h3>Workout History</h3>
 
     <button onclick="toggleSortOrder()">
         Sort
     </button>
+
     <ul id="setList"></ul>
 
     <script src="script.js"></script>

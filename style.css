@@ -6,19 +6,43 @@ body {
 }
 
 h1 {
-    margin-bottom: 16px;
+    margin-bottom: 24px;
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
 }
 
 button,
 select,
 input {
     padding: 8px;
-    margin: 4px;
+    font-size: 14px;
 }
 
 input,
 select {
     min-width: 120px;
+}
+
+button {
+    cursor: pointer;
+}
+
+#previousWorkout {
+    margin-top: 16px;
+    font-weight: bold;
+}
+
+#setList {
+    padding-left: 24px;
+}
+
+li {
+    margin-bottom: 8px;
 }
 
 .set-chip {
@@ -36,7 +60,55 @@ select {
     cursor: pointer;
 }
 
-#previousWorkout {
-    margin-top: 12px;
-    font-weight: bold;
+/* Mobile layout */
+@media (max-width: 600px) {
+    body {
+        max-width: none;
+        padding: 16px;
+    }
+
+    h1 {
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-row button,
+    .form-row select,
+    .form-row input {
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 16px;
+        padding: 10px;
+    }
+
+    #previousWorkout {
+        margin-top: 16px;
+        line-height: 1.4;
+    }
+
+    #setList {
+        padding-left: 20px;
+    }
+
+    li {
+        margin-bottom: 12px;
+        line-height: 1.5;
+    }
+
+    .set-chip {
+        display: inline-flex;
+        align-items: center;
+        margin-top: 6px;
+        margin-right: 4px;
+    }
+
+    .set-chip button {
+        font-size: 12px;
+        padding: 2px 6px;
+    }
 }
