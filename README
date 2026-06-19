@@ -1,0 +1,13 @@
+*Logged In
+A minimalistic workout tracker built with HTML, CSS and Javascript
+**Features
+-Track upper and lower body workouts
+-Record date, weight and reps
+-View workout history grouped by date and exercise
+-Sort workout history by newest or oldest
+-Edit and delete sets
+-Responsive layout for desktop and mobile
+***Current Limitations
+-Data is stored only in the browser
+-Exercises are currently predefined in the code
+View the app here -> https://logged-in-eight.vercel.app/
