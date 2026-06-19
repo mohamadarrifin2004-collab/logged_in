@@ -22,6 +22,7 @@ let editingSetId = null;
 
 const upperExercises = ["Pullups", "Bench Press", "Lateral Raises", "Shoulder Press", "Pullovers", "Curls"];
 const lowerExercises = ["Squats", "Leg Extension", "Leg Curls", "Calf Raises"];
+const coreExercises = ["Plank", "Sit ups", "Leg Raises", "Russian Twists"];
 
 function toggleSortOrder() {
     if (sortOrder === "newest") {
@@ -62,6 +63,11 @@ function selectUpper() {
 
 function selectLower() {
     selectedWorkoutType = "Lower";
+    renderExerciseDropdown();
+}
+
+function selectCore(){
+    selectedWorkoutType = "Core";
     renderExerciseDropdown();
 }
 
@@ -125,6 +131,8 @@ function renderExerciseDropdown() {
         exercises = upperExercises;
     } else if (selectedWorkoutType === "Lower") {
         exercises = lowerExercises;
+    } else if (selectedWorkoutType === "Core") {
+        exercises = coreExercises;
     }
 
     exercises.forEach(function(exercise) {
