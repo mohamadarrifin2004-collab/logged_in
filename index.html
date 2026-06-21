@@ -11,43 +11,129 @@
 
     <h1>Logged In</h1>
 
-    <div class="form-row">
-        <button onclick="selectUpper()">
-            Upper
-        </button>
+    <!-- Login / Sign Up Page -->
+    <div id="authPage">
+        <h3>Login</h3>
 
-        <button onclick="selectLower()">
-            Lower
-        </button>
+        <div class="auth-row">
+            <input id="email" type="email" placeholder="Email">
 
-        <button onclick="selectCore()">
-            Core
-        </button>
+            <input id="password" type="password" placeholder="Password">
 
+            <button onclick="signUp()">
+                Sign Up
+            </button>
 
-        <select id="exercise" onchange="renderPreviousWorkouts()"></select>
-
-        <input id="workoutDate" type="date" onchange="renderPreviousWorkouts()">
-
-        <input id="weight" placeholder="Weight">
-
-        <input id="reps" placeholder="Reps">
-
-        <button id="setButton" onclick="addSet()">
-            Add Set
-        </button>
+            <button onclick="signIn()">
+                Sign In
+            </button>
+        </div>
     </div>
 
-    <p id="previousWorkout"></p>
+    <!-- Main App Page -->
+    <div id="appPage" style="display: none;">
 
-    <h3>Workout History</h3>
+        <div class="nav-row">
+            <button onclick="signOut()">
+                Logout
+            </button>
+        </div>
 
-    <button onclick="toggleSortOrder()">
-        Sort
-    </button>
+        <!-- Main workout logging page -->
+        <div id="loggerPage">
 
-    <ul id="setList"></ul>
+            <div class="nav-row">
+                <button onclick="showManageExercisesPage()">
+                    Manage Exercises
+                </button>
+            </div>
 
+            <div class="workout-type-row">
+                <button onclick="selectUpper()">
+                    Upper
+                </button>
+
+                <button onclick="selectLower()">
+                    Lower
+                </button>
+
+                <button onclick="selectCore()">
+                    Core
+                </button>
+            </div>
+
+            <div class="form-row">
+                <select id="exercise" onchange="renderPreviousWorkouts()"></select>
+
+                <input id="workoutDate" type="date" onchange="renderPreviousWorkouts()">
+
+                <input id="weight" placeholder="Weight">
+
+                <input id="reps" placeholder="Reps">
+
+                <button id="setButton" onclick="addSet()">
+                    Add Set
+                </button>
+            </div>
+
+            <p id="previousWorkout"></p>
+
+            <h3>Workout History</h3>
+
+            <button onclick="toggleSortOrder()">
+                Sort
+            </button>
+
+            <ul id="setList"></ul>
+
+        </div>
+
+        <!-- Exercise management page -->
+        <div id="manageExercisesPage" style="display: none;">
+
+            <div class="nav-row">
+                <button onclick="showLoggerPage()">
+                    Back to Logger
+                </button>
+            </div>
+
+            <h3>Manage Exercises</h3>
+
+            <div class="workout-type-row">
+                <button onclick="selectManageWorkoutType('Upper')">
+                    Upper
+                </button>
+
+                <button onclick="selectManageWorkoutType('Lower')">
+                    Lower
+                </button>
+
+                <button onclick="selectManageWorkoutType('Core')">
+                    Core
+                </button>
+            </div>
+
+            <p id="manageExerciseTypeDisplay">
+                Selected: Upper
+            </p>
+
+            <div class="custom-exercise-row">
+                <input id="customExercise" placeholder="New exercise name">
+
+                <button onclick="addCustomExercise()">
+                    Add Exercise
+                </button>
+            </div>
+
+            <h4>Current Exercises</h4>
+
+            <ul id="exerciseList"></ul>
+
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 
 </body>
