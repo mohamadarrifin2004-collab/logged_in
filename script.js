@@ -14,6 +14,8 @@ let selectedWorkoutType = "";
 let manageSelectedWorkoutType = "Upper";
 let sortOrder = "newest";
 let editingSetId = null;
+let isBodyweight = false;
+let isPasswordRecovery = false;
 
 let exerciseLists = {
     Upper: [],
@@ -66,9 +68,11 @@ async function signIn() {
         return;
     }
 
+    isPasswordRecovery = false;
     currentUser = data.user;
 
     document.getElementById("authPage").style.display = "none";
+    document.getElementById("resetPasswordPage").style.display = "none";
     document.getElementById("appPage").style.display = "block";
 
     setDefaultDate();
@@ -97,7 +101,11 @@ async function signOut() {
         Core: []
     };
 
+    isPasswordRecovery = false;
+    setBodyweightMode(false);
+
     document.getElementById("authPage").style.display = "block";
+    document.getElementById("resetPasswordPage").style.display = "none";
     document.getElementById("appPage").style.display = "none";
 }
 
@@ -111,13 +119,22 @@ async function checkSession() {
 
     if (data.session === null) {
         document.getElementById("authPage").style.display = "block";
+        document.getElementById("resetPasswordPage").style.display = "none";
         document.getElementById("appPage").style.display = "none";
+        return;
+    }
+
+    if (isPasswordRecovery === true) {
+        document.getElementById("authPage").style.display = "none";
+        document.getElementById("appPage").style.display = "none";
+        document.getElementById("resetPasswordPage").style.display = "block";
         return;
     }
 
     currentUser = data.session.user;
 
     document.getElementById("authPage").style.display = "none";
+    document.getElementById("resetPasswordPage").style.display = "none";
     document.getElementById("appPage").style.display = "block";
 
     setDefaultDate();
@@ -128,6 +145,62 @@ async function checkSession() {
     await loadExerciseLists();
 
     showLoggerPage();
+}
+
+async function sendPasswordReset() {
+    const email = document.getElementById("email").value;
+
+    if (email === "") {
+        alert("Please enter your email first");
+        return;
+    }
+
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin
+    });
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    alert("Password reset email sent. Check your inbox.");
+}
+
+async function updatePassword() {
+    const newPassword = document.getElementById("newPassword").value;
+
+    if (newPassword === "") {
+        alert("Please enter a new password");
+        return;
+    }
+
+    if (newPassword.length < 6) {
+        alert("Password should be at least 6 characters");
+        return;
+    }
+
+    const { error } = await supabaseClient.auth.updateUser({
+        password: newPassword
+    });
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    alert("Password updated. Please log in again.");
+
+    await supabaseClient.auth.signOut();
+
+    currentUser = null;
+    sets = [];
+    isPasswordRecovery = false;
+
+    document.getElementById("newPassword").value = "";
+    document.getElementById("resetPasswordPage").style.display = "none";
+    document.getElementById("authPage").style.display = "block";
+    document.getElementById("appPage").style.display = "none";
 }
 
 /* =========================
@@ -193,6 +266,56 @@ function formatDate(dateString) {
 }
 
 /* =========================
+   QUICK INPUT HELPERS
+========================= */
+
+function setReps(value) {
+    document.getElementById("reps").value = value;
+}
+
+function toggleBodyweight() {
+    setBodyweightMode(!isBodyweight);
+}
+
+function setBodyweightMode(value) {
+    const weightInput = document.getElementById("weight");
+    const bodyweightButton = document.getElementById("bodyweightButton");
+
+    if (weightInput === null || bodyweightButton === null) {
+        return;
+    }
+
+    isBodyweight = value;
+
+    if (isBodyweight === true) {
+        weightInput.value = "";
+        weightInput.disabled = true;
+        weightInput.placeholder = "Bodyweight";
+        bodyweightButton.classList.add("active-button");
+    } else {
+        weightInput.disabled = false;
+        weightInput.placeholder = "Weight kg";
+        bodyweightButton.classList.remove("active-button");
+    }
+}
+
+function turnOffBodyweight() {
+    const weightInput = document.getElementById("weight");
+
+    if (weightInput.value !== "") {
+        setBodyweightMode(false);
+    }
+}
+
+function formatWeightAndReps(weight, reps) {
+    if (weight === "BW") {
+        return `BW x ${reps}`;
+    }
+
+    return `${weight}kg x ${reps}`;
+}
+
+/* =========================
    WORKOUT TYPE SELECTION
 ========================= */
 
@@ -220,7 +343,7 @@ function renderExerciseDropdown() {
         return;
     }
 
-    const exercises = exerciseLists[selectedWorkoutType];
+    const exercises = exerciseLists[selectedWorkoutType] || [];
 
     exercises.forEach(function(exercise) {
         const option = document.createElement("option");
@@ -265,16 +388,33 @@ async function loadWorkoutSets() {
 async function addSet() {
     const exercise = document.getElementById("exercise").value;
     const workoutDate = document.getElementById("workoutDate").value;
-    const weight = document.getElementById("weight").value;
+    const weightInput = document.getElementById("weight").value;
     const reps = document.getElementById("reps").value;
+
+    const weight = isBodyweight === true ? "BW" : weightInput;
 
     if (currentUser === null) {
         alert("Please sign in first");
         return;
     }
 
-    if (selectedWorkoutType === "" || exercise === "" || workoutDate === "" || weight === "" || reps === "") {
-        alert("Please fill in all fields");
+    if (selectedWorkoutType === "" || exercise === "" || workoutDate === "" || reps === "") {
+        alert("Please fill in exercise, date and reps");
+        return;
+    }
+
+    if (isBodyweight === false && weightInput === "") {
+        alert("Please enter a weight or select BW");
+        return;
+    }
+
+    if (Number(reps) <= 0) {
+        alert("Reps must be more than 0");
+        return;
+    }
+
+    if (isBodyweight === false && Number(weightInput) < 0) {
+        alert("Weight cannot be negative");
         return;
     }
 
@@ -320,7 +460,10 @@ async function addSet() {
         document.getElementById("setButton").textContent = "Add Set";
     }
 
-    document.getElementById("weight").value = "";
+    if (isBodyweight === false) {
+        document.getElementById("weight").value = "";
+    }
+
     document.getElementById("reps").value = "";
 
     await loadWorkoutSets();
@@ -350,6 +493,7 @@ async function deleteSet(id) {
         document.getElementById("setButton").textContent = "Add Set";
         document.getElementById("weight").value = "";
         document.getElementById("reps").value = "";
+        setBodyweightMode(false);
     }
 
     await loadWorkoutSets();
@@ -374,8 +518,14 @@ function editSet(id) {
 
     document.getElementById("exercise").value = setToEdit.exercise;
     document.getElementById("workoutDate").value = setToEdit.date;
-    document.getElementById("weight").value = setToEdit.weight;
     document.getElementById("reps").value = setToEdit.reps;
+
+    if (setToEdit.weight === "BW") {
+        setBodyweightMode(true);
+    } else {
+        setBodyweightMode(false);
+        document.getElementById("weight").value = setToEdit.weight;
+    }
 
     document.getElementById("setButton").textContent = "Save Edit";
 
@@ -405,7 +555,9 @@ async function loadExerciseLists() {
     };
 
     data.forEach(function(row) {
-        exerciseLists[row.workout_type].push(row.exercise_name);
+        if (exerciseLists[row.workout_type] !== undefined) {
+            exerciseLists[row.workout_type].push(row.exercise_name);
+        }
     });
 
     if (
@@ -413,8 +565,12 @@ async function loadExerciseLists() {
         exerciseLists.Lower.length === 0 &&
         exerciseLists.Core.length === 0
     ) {
-        await createDefaultExercises();
-        await loadExerciseLists();
+        const createdDefaults = await createDefaultExercises();
+
+        if (createdDefaults === true) {
+            await loadExerciseLists();
+        }
+
         return;
     }
 
@@ -457,7 +613,10 @@ async function createDefaultExercises() {
 
     if (error) {
         alert(error.message);
+        return false;
     }
+
+    return true;
 }
 
 function selectManageWorkoutType(workoutType) {
@@ -483,7 +642,7 @@ async function addCustomExercise() {
         return;
     }
 
-    const exercises = exerciseLists[manageSelectedWorkoutType];
+    const exercises = exerciseLists[manageSelectedWorkoutType] || [];
 
     const alreadyExists = exercises.some(function(exercise) {
         return exercise.toLowerCase() === newExercise.toLowerCase();
@@ -522,7 +681,7 @@ function renderExerciseList() {
 
     list.innerHTML = "";
 
-    const exercises = exerciseLists[manageSelectedWorkoutType];
+    const exercises = exerciseLists[manageSelectedWorkoutType] || [];
 
     if (exercises.length === 0) {
         const emptyMessage = document.createElement("p");
@@ -610,7 +769,7 @@ function renderPreviousWorkouts() {
     });
 
     const setTexts = setsFromPreviousDate.map(function(set) {
-        return `${set.weight} x ${set.reps}`;
+        return formatWeightAndReps(set.weight, set.reps);
     });
 
     display.textContent =
@@ -677,7 +836,7 @@ function renderSets() {
                 chip.className = "set-chip";
 
                 const setText = document.createElement("span");
-                setText.textContent = `${set.weight} x ${set.reps}`;
+                setText.textContent = formatWeightAndReps(set.weight, set.reps);
                 chip.appendChild(setText);
 
                 const editButton = document.createElement("button");
@@ -705,7 +864,24 @@ function renderSets() {
 }
 
 /* =========================
+   PASSWORD RECOVERY LISTENER
+========================= */
+
+supabaseClient.auth.onAuthStateChange(function(event, session) {
+    if (event === "PASSWORD_RECOVERY") {
+        isPasswordRecovery = true;
+        currentUser = session.user;
+
+        document.getElementById("authPage").style.display = "none";
+        document.getElementById("appPage").style.display = "none";
+        document.getElementById("resetPasswordPage").style.display = "block";
+    }
+});
+
+/* =========================
    START APP
 ========================= */
 
-checkSession();
+setTimeout(function() {
+    checkSession();
+}, 500);
