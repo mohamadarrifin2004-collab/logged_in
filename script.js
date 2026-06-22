@@ -110,6 +110,18 @@ async function signOut() {
 }
 
 async function checkSession() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isResetLink = urlParams.get("reset") === "true";
+
+    if (isResetLink === true) {
+        isPasswordRecovery = true;
+
+        document.getElementById("authPage").style.display = "none";
+        document.getElementById("appPage").style.display = "none";
+        document.getElementById("resetPasswordPage").style.display = "block";
+        return;
+    }
+
     const { data, error } = await supabaseClient.auth.getSession();
 
     if (error) {
@@ -156,7 +168,7 @@ async function sendPasswordReset() {
     }
 
     const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin
+        redirectTo: `${window.location.origin}?reset=true`
     });
 
     if (error) {
@@ -192,6 +204,8 @@ async function updatePassword() {
     alert("Password updated. Please log in again.");
 
     await supabaseClient.auth.signOut();
+
+    window.history.replaceState({}, document.title, window.location.origin);
 
     currentUser = null;
     sets = [];
@@ -870,7 +884,10 @@ function renderSets() {
 supabaseClient.auth.onAuthStateChange(function(event, session) {
     if (event === "PASSWORD_RECOVERY") {
         isPasswordRecovery = true;
-        currentUser = session.user;
+
+        if (session !== null) {
+            currentUser = session.user;
+        }
 
         document.getElementById("authPage").style.display = "none";
         document.getElementById("appPage").style.display = "none";
